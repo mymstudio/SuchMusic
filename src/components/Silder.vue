@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { MenuOption } from 'naive-ui'
 import type { Component } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   BookOutline as BookIcon,
   PersonOutline as PersonIcon,
@@ -8,34 +9,50 @@ import {
 } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
 import { h, ref } from 'vue'
-
+import { RouterLink } from 'vue-router'
+const router = useRouter()
 function renderIcon(icon: Component) {
   return () => h(NIcon, null, { default: () => h(icon) })
 }
 
 const menuOptions: MenuOption[] = [
   {
-    label: () =>
-      h(
-        'a',
-        {
-          href: 'https://baike.baidu.com/item/%E4%B8%94%E5%90%AC%E9%A3%8E%E5%90%9F',
-          target: '_blank',
-          rel: 'noopenner noreferrer'
-        },
-        '为我推荐'
-      ),
+    label:'回家',
     key: 'hear-the-wind-sing',
     icon: renderIcon(BookIcon)
   },
   {
-    label: '发现音乐',
-    key: 'pinball-1973',
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
+            name: 'TopAlbums',
+            params: {
+              lang: 'zh-CN'
+            }
+          }
+        },
+        { default: () => '发现音乐' }
+      ),
+    key: '/',
     icon: renderIcon(BookIcon),
   },
   {
-    label: '本地歌曲',
-    key: 'a-wild-sheep-chase',
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
+            name: 'LocalSongs',
+            params: {
+              lang: 'zh-CN'
+            }
+          }
+        },
+        { default: () => '本地音乐' }
+      ),
+    key: '/local',
     icon: renderIcon(BookIcon),
   },
   {
@@ -46,6 +63,10 @@ const menuOptions: MenuOption[] = [
 ]
 
 const activeKey = ref('pinball-1973')
+
+function handleMenuClick(key: string) {
+  router.push(key)
+}
 
 </script>
 

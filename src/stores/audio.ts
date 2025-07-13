@@ -120,7 +120,6 @@ export const useAudioStore = defineStore('audio', {
                 if (hiddenAudioElement) hiddenAudioElement.pause();
             }
         },
-
         startUpdatingTime() {
             const startTime = this.audioContext.currentTime;
 

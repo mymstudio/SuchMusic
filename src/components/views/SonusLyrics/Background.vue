@@ -2,7 +2,10 @@
 import { defineProps, defineEmits, ref, watch } from 'vue';
 import { usePlayerStore } from '../../../stores/player';
 import Lyrics from './Lyrics.vue';
+import { useUIStore } from '../../../stores/ui';
 const playerStore = usePlayerStore();
+const uiStore = useUIStore();
+
 
 // 接收 props
 const props = defineProps<{
@@ -29,6 +32,7 @@ watch(
 
 function BackgroundOpen() {
   emit('update:backgroundopen', !props.backgroundopen);
+  uiStore.togglePanel();
 }
 </script>
 

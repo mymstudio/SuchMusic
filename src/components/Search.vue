@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-
+import { ref } from 'vue';
 import { useSearchStore } from '../stores/search';
 import { usePlayerStore } from '../stores/player'; // 引入播放器 store
 import axios from 'axios';
@@ -29,13 +29,14 @@ searchStore.fetchTopAlbums(searchStore.query).then(() => {
 async function getTlyric(formattedSong: {
     id: any;
     name: any;
+    album: any;
     picUrl: any;
     artists: any;
     mp3Url: any;
     lyric: any;
     tlyric: string;
 }) {
-    const responseA = await axios.get('https://ncm.nekogan.com/lyric', {
+    const responseA = await axios.get('https://zm.armoe.cn/lyric', {
         params: {
             id: formattedSong.id,
         },
@@ -49,15 +50,17 @@ async function getTlyric(formattedSong: {
     console.log('最终歌曲信息:', formattedSong);
     playerStore.playSong(formattedSong);
 }
-
+const currentPlayingSongId = ref<string | null>(null);
 async function playSong(song: any) {
 
 
     axios.get(`https://www.lihouse.xyz/coco_widget/music_resource/id/${song.id}`).then(response => {
+        currentPlayingSongId.value = song.id; // 更新当前播放的歌曲 ID
         const songData = response.data.song_data;
         const formattedSong = {
             id: song.id,
             name: song.name,
+            album: songData.album || '未知专辑',
             picUrl: song.al.picUrl,
             artists: song.ar || [],
             mp3Url: songData.url || '', // 确保数据包含音频地址
@@ -98,7 +101,7 @@ function getArtistsFormatted(artistsdata: any[]) {
 
             " class="search">
             <div v-for="(album, index) in searchStore.topAlbums" :key="album.id">
-                <div class="search-item" @click="playSong(album)">
+                <div :class="{ active: album.id === currentPlayingSongId }" class="search-item" @click="playSong(album)">
                     <div style="width: 24px; text-align: center; font-size: 14px; color: #888; margin-right: 2px;">
                         {{ index + 1 }}
                     </div>
@@ -113,7 +116,7 @@ function getArtistsFormatted(artistsdata: any[]) {
                                 style="font-family: HarmonyOS_Sans_SC_Bold; font-size: 16.5px; font-weight: bold; font-family: HarmoneyOS_Sans_SC_Bold, sans-serif;">{{
                                     album.name }}</span>
                             <n-tag v-if="album.isOriginal" type="success" style="transform: scale(0.92);" size="small"
-                                round @close="handleClose">
+                                round>
                                 原唱
                             </n-tag>
                             <n-tag v-if="album.isVip" type="warning" size="small" round style="transform: scale(0.92);">
@@ -139,6 +142,7 @@ function getArtistsFormatted(artistsdata: any[]) {
     width: 5px;
     /* 设置竖向滚动条宽度 */
     height: 8px;
+        margin-left: 4px;
     color: #818181;
     /* 设置横向滚动条高度（可选） */
 }
@@ -156,6 +160,11 @@ function getArtistsFormatted(artistsdata: any[]) {
     border: #3d889b00 solid 2.5px;
 }
 
+.search-item.active {
+    background-color: rgb(153, 192, 255); /* 浅蓝色背景 */
+    border: #3080FF solid 2.5px;
+
+}
 
 .search-item:hover {
     margin-bottom: 12px;
@@ -164,7 +173,6 @@ function getArtistsFormatted(artistsdata: any[]) {
     gap: 8px;
     color: #2c2c2c;
     padding: 12px 12px;
-    background-color: #ffffff;
     border-radius: 8px;
     border: #5F9CFEFF solid 2.5px;
 }
@@ -178,6 +186,7 @@ function getArtistsFormatted(artistsdata: any[]) {
 .search::-webkit-scrollbar-thumb {
     background-color: #b8b8b8;
     border-radius: 4px;
+    margin-left: 4px;
     transition: background-color 0.3s ease;
 }
 

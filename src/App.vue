@@ -8,6 +8,9 @@ import { darkTheme } from 'naive-ui'
 import Header from "./components/Header.vue";
 import axios from "axios";
 import Bottom from "./components/Bottom.vue";
+import { useUIStore } from './stores/ui';
+const uiStore = useUIStore();
+
 import Background from './components/views/SonusLyrics/Background.vue';
 import { useThemeVars } from 'naive-ui'
 const themeVars = useThemeVars()
@@ -62,7 +65,7 @@ function toggleDarkMode() {
   <n-config-provider :theme="isDarkMode ? darkTheme : undefined" :theme-overrides="themeOverrides">
     <n-message-provider placement="top-right">
 
-      <div class="app">
+      <div :class="{ 'scaled-down': uiStore.isPanelOpen }" class="app">
         <Silder />
 
 
@@ -84,14 +87,18 @@ function toggleDarkMode() {
                 <component :is="Component" />
               </transition>
             </router-view>
-            <Bottom class="bottom-bar" />
-          </div>
 
+          </div>
 
 
         </main>
       </div>
+      <Bottom class="bottom-bar" />
 
+      <!-- 遮罩层 -->
+      <Transition name="fadeA">
+        <div v-show="uiStore.isPanelOpen" class="overlay" @click="uiStore.closePanel"></div>
+      </Transition>
     </n-message-provider>
   </n-config-provider>
 </template>
@@ -119,6 +126,28 @@ function toggleDarkMode() {
   left: 0;
   width: 100%;
   z-index: 999;
+}
+
+/* 缩小动画 */
+.scaled-down {
+  transform: scale(0.9);
+  opacity: 0.8;
+  transition: all 0.4s ease-in-out;
+  filter: blur(2px);
+}
+
+/* 遮罩层 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.781);
+  z-index: 9998;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
 }
 
 .top-albums {
@@ -283,6 +312,7 @@ function toggleDarkMode() {
   justify-content: center;
   height: 100vh;
   width: 100vw;
+  transition: all 0.4s ease-in-out;
   overflow: hidden;
   background-color: #F6F6F6;
   font-family: HarmonyOS_Sans_SC, sans-serif;
@@ -314,14 +344,15 @@ function toggleDarkMode() {
 </style>
 <style>
 /* 定义过渡动画 */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.3s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s ease-out;
 }
 
-.fade-slide-enter-from,
-.fade-slide-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   transform: translate(30%, 0%);
+  opacity: 0;
 }
 
 @font-face {

@@ -6,6 +6,7 @@ export interface Song {
   name: string;
   picUrl: string | null;
   artists: any[];
+  album: any;
   mp3Url: string;
   lyric: string | null;
   tlyric: string | null;

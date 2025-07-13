@@ -2,7 +2,7 @@
     <Background :class="{
         'background-hide': !backgroundopen,
         'background-open': backgroundopen,
-    }" v-model:backgroundopen="backgroundopen"/>
+    }" v-model:backgroundopen="backgroundopen" />
     <div class="bottom">
         <audio ref="hiddenAudio" :src="currentSongUrl" @ended="onAudioEnded" style="display: none;"
             preload="auto"></audio>
@@ -23,9 +23,35 @@
             <div class="bottom-left-text">
 
                 <div v-if="playerStore.currentSong" class="bottom-left-text-title">{{ playerStore.currentSong.name }}
+                    <n-dropdown trigger="click" :options="options" @select="handleSelect">
+                        <div style="transform: scale(0.85) translateY(1px); ">
+                            <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
+                                <title>menu_line</title>
+                                <g id="menu_line" fill='none'>
+                                    <path
+                                        d='M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z' />
+                                    <path fill='currentColor'
+                                        d='M20 18a1 1 0 0 1 .117 1.993L20 20H4a1 1 0 0 1-.117-1.993L4 18zm0-7a1 1 0 1 1 0 2H4a1 1 0 1 1 0-2zm0-7a1 1 0 1 1 0 2H4a1 1 0 0 1 0-2z' />
+                                </g>
+                            </svg>
+                        </div>
+                    </n-dropdown>
                 </div>
 
                 <div v-else class="bottom-left-text-title">欢迎来到 Such Music
+                    <n-dropdown trigger="click" :options="options" @select="handleSelect">
+                        <div style="transform: scale(0.85) translateY(1px); ">
+                            <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
+                                <g id="menu_line" fill='none'>
+                                    <path
+                                        d='M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z' />
+                                    <path fill='currentColor'
+                                        d='M20 18a1 1 0 0 1 .117 1.993L20 20H4a1 1 0 0 1-.117-1.993L4 18zm0-7a1 1 0 1 1 0 2H4a1 1 0 1 1 0-2zm0-7a1 1 0 1 1 0 2H4a1 1 0 0 1 0-2z' />
+                                </g>
+                            </svg>
+                        </div>
+
+                    </n-dropdown>
                 </div>
 
                 <div v-if="playerStore.currentSong" class="bottom-left-text-artist">{{
@@ -76,7 +102,8 @@
                     </g>
                 </svg>
 
-                <svg v-if="pause" style="transform: scale(0.98) translateX(0px);" xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
+                <svg v-if="pause" style="transform: scale(0.98) translateX(0px);" xmlns='http://www.w3.org/2000/svg'
+                    width='24' height='24' viewBox='0 0 24 24'>
                     <title>pause_line</title>
                     <g id="pause_line" fill='none'>
                         <path
@@ -159,26 +186,18 @@ import { useThemeVars } from 'naive-ui';
 import { usePlayerStore } from '../stores/player';
 import { useAudioStore } from '../stores/audio';
 import Background from './views/SonusLyrics/Background.vue';
+import { useMessage } from 'naive-ui'
+import { useUIStore } from '../stores/ui';
+import { invoke } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
+const message = useMessage();
+const uiStore = useUIStore();
 const themeVars = useThemeVars();
 const playerStore = usePlayerStore();
 const audioStore = useAudioStore();
 const pause = ref(false);
 const hiddenAudio = ref<HTMLAudioElement | null>(null);
 document.documentElement.style.setProperty('--thumb-color', themeVars.value.primaryColor);
-
-const backgroundopen = ref(false);
-
-const BackgroundOpen = () => {
-    backgroundopen.value = !backgroundopen.value;
-};
-
-
-
-
-// 获取当前歌曲 URL
-const currentSongUrl = computed(() => {
-    return playerStore.currentSong?.mp3Url || '';
-});
 
 // 格式化艺术家信息
 const formatArtists = (artists: any[]) => {
@@ -187,6 +206,107 @@ const formatArtists = (artists: any[]) => {
     }
     return artists.map(artist => artist?.name || '未知').join(' / ');
 };
+const backgroundopen = ref(false);
+const options = ref([
+
+    {
+        label: '播放',
+        key: 'play'
+    },
+    {
+        label: '下一首播放',
+        key: 'playnext'
+    },
+    {
+        type: 'divider',
+        key: 'd1'
+    },
+    {
+        label: `歌手：` + formatArtists(playerStore.currentSong?.artists),
+        key: 'artist'
+    },
+    {
+        label: '复制歌曲 ID',
+        key: 'copyid'
+    },
+    {
+        type: 'divider',
+        key: 'd2'
+    },
+    {
+        label: '下载歌曲',
+        key: 'download'
+    },
+    {
+        label: '歌曲信息',
+        key: 'info',
+        disabled: true
+    },
+
+])
+
+function handleSelect(key: string | number) {
+
+    if (key === 'download') {
+        message.loading('正在下载歌曲')
+        downloadSong(currentSongUrl.value);
+    }
+}
+
+const BackgroundOpen = () => {
+    backgroundopen.value = !backgroundopen.value;
+    uiStore.togglePanel(); // 切换面板状态
+};
+
+// ... existing code ...
+async function downloadSong(songUrl: string) {
+    try {
+        // 使用Tauri的对话框API让用户选择保存目录
+        const savePath = await open({
+            title: '选择保存目录',
+            directory: true
+        });
+
+        if (!savePath) {
+            message.warning('未选择保存目录');
+            return;
+        }
+
+        // 检查目录权限
+        const hasPermission = await invoke('check_directory_permission', {
+            path: savePath
+        });
+
+        if (!hasPermission) {
+            message.error('没有写入权限，请选择其他目录');
+            return;
+        }
+
+        // 创建子目录避免直接写入文档目录
+        const finalPath = await invoke('create_subdirectory', {
+            parentPath: savePath,
+            dirName: 'SuchMusicDownloads'
+        });
+
+        const result = await invoke('download_music', {
+            url: songUrl,
+            savePath: `${finalPath}/${playerStore.currentSong?.name || 'song'}.mp3`
+        });
+
+        message.success('下载成功');
+        console.log('Download completed:', result);
+    } catch (error) {
+        console.error('Download failed:', error);
+        message.error(`下载失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    }
+}
+// ... existing code ...
+
+// 获取当前歌曲 URL
+const currentSongUrl = computed(() => {
+    return playerStore.currentSong?.mp3Url || '';
+});
+
 
 // 进度条相关计算属性和方法
 const progress = computed({
@@ -215,10 +335,10 @@ const formattedDuration = computed(() => formatTime(audioStore.duration));
 function togglePlay() {
     audioStore.togglePlayPause();
     if (audioStore.isPlaying) {
-            pause.value = false;
-        } else {
-            pause.value = true;
-        }
+        pause.value = false;
+    } else {
+        pause.value = true;
+    }
 }
 
 // 拖动进度条跳转播放位置
@@ -236,7 +356,7 @@ watch(
         } else {
             pause.value = true;
         }
-    
+
     }
 );
 
@@ -371,6 +491,9 @@ watch(
 .bottom-left-text-title {
     font-size: 17px;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 7px;
     line-height: 1.2;
 }
 
@@ -380,6 +503,7 @@ watch(
     font-weight: 500;
     color: #999999;
     line-height: 1.2;
+    transform: translateY(-5.5px);
 }
 
 .bottom {

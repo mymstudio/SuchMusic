@@ -15,7 +15,7 @@ export const useSearchStore = defineStore('search', {
             console.log(this.query)
             try {
 
-                const response = await axios.get('https://ncm.nekogan.com/cloudsearch', {
+                const response = await axios.get('https://zm.armoe.cn/cloudsearch', {
                     params: {
                         keywords: this.query,
                     },
