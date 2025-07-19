@@ -9,7 +9,11 @@
                         formatTime(audioStore.currentTime) }}</span>
                 <n-slider
                     style="position: absolute; top:-8px; left: 34%; background-color: transparent; width: 220px;  height: 6px;"
-                    v-model:value="progress" :step="1" @update:value="onProgressChange">
+                    v-model:value="progress" :style="
+                    {
+                        color: prop.iconColor || '#fff',
+                    }
+                    " :step="1" @update:value="onProgressChange">
                     <template #thumb>
                         <div class="thumb"></div>
                     </template>
@@ -21,6 +25,7 @@
 
 
 
+            
             <div class="bottom-left">
                 <n-dropdown trigger="hover" :options="options" @select="handleSelect">
                     <div class="flex-center-center bottom-right-button">
@@ -68,12 +73,14 @@
             align-items: center;
             justify-content: center;
             color: white;
-            backdrop-filter: blur(10px);
-            background-color: rgba(255, 255, 255, 0.55);
-            transform: scale(1.0);
+            background-color: transparent;
+            transform: scale(1.2);
             border-radius: 100000px;
             
-            " @click="togglePlay">
+            " :style="{
+                    color: prop.iconColor || 'white',
+                }
+                " @click="togglePlay">
                     <svg v-if="!pause" style="transform: scale(0.82) translateX(1px);"
                         xmlns="http://www.w3.org/2000/svg" width="24" height="24">
                         <rect width="24" height="24" opacity="0"></rect>
@@ -146,7 +153,7 @@
                             fill="currentColor" p-id="2636"></path>
                     </svg>
                 </div>
-                <n-badge style="transform: scale(1);" value="3" color="grey">
+                <n-badge style="transform: scale(1);" value="0" color="grey">
                     <div class="flex-center-center bottom-right-button">
 
                         <svg t="1748098178548" class="icon" viewBox="0 0 1024 1024" version="1.1"
@@ -172,19 +179,27 @@ import { useUIStore } from '../../../stores/ui';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { NConfigProvider } from 'naive-ui'
+import { defineProps } from 'vue';
 
+// 自定义主题变量
+const prop = defineProps({
+    iconColor: {
+        type: String,
+        default: '#FFFFFF'
+    }
+});
 
 // ... existing code ...
-const themeOverrides = {
+const themeOverrides = ref({
     Slider: {
         railColor: 'rgba(255, 255, 255, 0)',  // 改为完全透明
         railColorHover: 'rgba(255, 255, 255, 0)',  // 改为完全透明
-        fillColor: 'rgba(255, 255, 255, 1)',  // 半透明填充色
-        fillColorHover: 'rgba(255, 255, 255, 0.7)',  // 悬停时稍亮的半透明
+        fillColor: prop.iconColor,  // 半透明填充色
+        fillColorHover: prop.iconColor,  // 悬停时稍亮的半透明
         handleColor: '#ffffff',
     }
     // ...
-}
+})
 // ... existing code ...
 
 const message = useMessage();
@@ -379,7 +394,8 @@ function onProgressChange(value: number) {
     height: 9px;
     left: -4px;
     border-radius: 50%;
-    background-color: white;
+    background-color: v-bind("iconColor");
+    filter: brightness(1);
     position: relative;
     transition: all 0.3s ease;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.295);
@@ -390,7 +406,7 @@ function onProgressChange(value: number) {
     height: 20px;
     padding: 8px;
     border-radius: 8px;
-    color: white;
+    color: v-bind("iconColor");
     background-color: #ffffff00;
     transition: all 0.3s ease;
 }
@@ -446,7 +462,7 @@ function onProgressChange(value: number) {
     position: relative;
     transform: translateX(24px);
     left: 4px;
-    color: white;
+    color: v-bind("iconColor");
 }
 
 .bottom-right {
@@ -492,8 +508,9 @@ function onProgressChange(value: number) {
     left: 0;
     width: 100vw;
     height: 80px;
-    background: linear-gradient( to top, #00000069, #00000000);
-    color: #fff;
+    background: linear-gradient(to top, #00000069, #00000000);
+    color: v-bind("iconColor");
+    filter: brightness(2.5);
     display: flex;
     align-items: center;
     justify-content: space-between;

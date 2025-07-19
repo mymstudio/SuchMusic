@@ -66,7 +66,7 @@ const props = defineProps({
     },
     lyricPadding: {
         type: Number,
-        default: 16
+        default: 12
     },
     listPadding: {
         type: Number,
@@ -98,7 +98,7 @@ const props = defineProps({
     },
     lyricShadow: {
         type: String,
-        default: '0 0 0px #FFFFFF80'
+        default: '0 0 16px'
     }
 })
 const countdownScale = ref(1) // 恢复缩放比例变量
@@ -459,7 +459,7 @@ function getLyricStyle(index: number) {
     return {
         opacity,
         fontSize: `${fontSize}px`,
-        filter: `blur(${blur}px)`
+        filter: `blur(${blur}px) brightness(1.8)`
     }
 }
 // 判断歌词是否在可视区域内
@@ -526,7 +526,8 @@ function parseLyrics(): Array<{ time: string, text: string, trans: string, isCou
         while ((match = regex.exec(newLyrics)) !== null) {
             const [fullMatch, timestamp, text] = match;
             const cleanedText = cleanText(text);
-            if (cleanedText) {
+            // 添加过滤条件：去除包含作词、作曲等信息的行
+            if (cleanedText && !cleanedText.match(/：|:| : /)) {
                 lyricsMap[timestamp] = {
                     time: timestamp,
                     text: cleanedText,
@@ -540,14 +541,17 @@ function parseLyrics(): Array<{ time: string, text: string, trans: string, isCou
         while ((match = regex.exec(newLyricsT)) !== null) {
             const [fullMatch, timestamp, trans] = match;
             const cleanedTrans = cleanText(trans);
-            if (lyricsMap[timestamp]) {
-                lyricsMap[timestamp].trans = cleanedTrans;
-            } else if (cleanedTrans) {
-                lyricsMap[timestamp] = {
-                    time: timestamp,
-                    text: '',
-                    trans: cleanedTrans
-                };
+            // 同样过滤翻译歌词中的作词作曲信息
+            if (cleanedTrans && !cleanedTrans.match(/作[词曲编]|演唱|制作|Producer|Lyrics/)) {
+                if (lyricsMap[timestamp]) {
+                    lyricsMap[timestamp].trans = cleanedTrans;
+                } else if (cleanedTrans) {
+                    lyricsMap[timestamp] = {
+                        time: timestamp,
+                        text: '',
+                        trans: cleanedTrans
+                    };
+                }
             }
         }
 
@@ -565,7 +569,7 @@ function parseLyrics(): Array<{ time: string, text: string, trans: string, isCou
             if (countdownIndex.value !== -1) {
                 filteredLyrics.splice(countdownIndex.value, 0, {
                     time: filteredLyrics[countdownIndex.value].time,
-                    text: '__COUNTDOWN__',
+                    text: '',
                     trans: '',
                     isCountdown: true
                 })
@@ -753,6 +757,16 @@ function convertToSeconds(timeString: string) {
 
 
 
+const shouldScrollA = computed(() => {
+    const title = playerStore.currentSong?.name || '';
+    // 当标题超过8个字符时才启用滚动
+    if (title.length > 8) {
+        return true
+    } else {
+        return false
+    }
+});
+
 // 当前封面图 URL
 const backgroundimg = ref(playerStore.currentSong?.picUrl || '');
 
@@ -794,9 +808,15 @@ const formatArtists = (artists: any[] | undefined) => {
         box-shadow:  0px 0px 24px rgba(0, 0, 0, 0.2);
         " :src="backgroundimg" alt="" height="55%">
             <div class="text-center">
-                <h3>{{ playerStore.currentSong?.name }}</h3>
+
+                <h3 :class="{ 'song-title-wrapper': shouldScrollA }" style="font-size: 28px"
+                    >
+                    <span :class="{ 'song-title': shouldScrollA }">{{ playerStore.currentSong?.name }}</span>
+                </h3>
+
+
                 <div style="display: flex; flex-direction: column;">
-                    <span>
+                    <span class="text-center-span">
                         <svg style="transform: scale(0.8) translateY(8px); " xmlns='http://www.w3.org/2000/svg'
                             width='24' height='24' viewBox='0 0 24 24'>
                             <g id="user_edit_fill" fill='none'>
@@ -809,16 +829,16 @@ const formatArtists = (artists: any[] | undefined) => {
                         {{ formatArtists(playerStore.currentSong?.artists) }}
                     </span>
 
-                    <span>
+                    <span class="text-center-span">
                         <svg style="transform: scale(0.8) translateY(8px); " xmlns='http://www.w3.org/2000/svg'
                             width='24' height='24' viewBox='0 0 24 24'>
-                                
-                                <g id="album_fill" fill='none'>
-                                    <path
-                                        d='M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z' />
-                                    <path fill='currentColor'
-                                        d='M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-.56-3.493a1 1 0 0 0-1.276-.61 7.019 7.019 0 0 0-3.73 3.1A1 1 0 0 0 8.166 10a5.02 5.02 0 0 1 2.665-2.216 1 1 0 0 0 .61-1.276Z' />
-                                </g>
+
+                            <g id="album_fill" fill='none'>
+                                <path
+                                    d='M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z' />
+                                <path fill='currentColor'
+                                    d='M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-.56-3.493a1 1 0 0 0-1.276-.61 7.019 7.019 0 0 0-3.73 3.1A1 1 0 0 0 8.166 10a5.02 5.02 0 0 1 2.665-2.216 1 1 0 0 0 .61-1.276Z' />
+                            </g>
 
                         </svg>
                         {{ playerStore.currentSong?.album }}
@@ -830,7 +850,7 @@ const formatArtists = (artists: any[] | undefined) => {
         </div>
 
         <div>
-            <PlayerBottom></PlayerBottom>
+            <PlayerBottom :iconColor="lyricActiveColor"></PlayerBottom>
         </div>
 
         <div style="flex: 0.7;">
@@ -885,27 +905,111 @@ const formatArtists = (artists: any[] | undefined) => {
         font-size: 28px;
         margin-top: 8px;
         font-weight: bolder;
-        color: rgba(255, 255, 255, 0.938);
+        color: v-bind("lyricActiveColor");
+        filter: brightness(1.8);
         margin-bottom: 0px;
+        width: 365px;
     }
 
-
-    span {
-        position: relative;
-        top: -3px;
-        left: 0px;
-        margin-top: 0px;
-        transform: translateY(-3px);
-        font-weight: 500;
-        font-size: 15px;
-        transition: all 0.2s ease-in-out;
-        color: rgba(255, 255, 255, 0.712);
-    }
 
 }
 
-.text-center span:hover {
-    color: white;
+.text-center-h3 {
+    font-size: 28px;
+    margin-top: 0px;
+    font-weight: bolder;
+    color: v-bind("lyricActiveColor");
+    filter: brightness(1.8);
+    margin-bottom: 0px;
+    width: 355px;
+}
+
+.text-center-span {
+
+    position: relative;
+    top: -3px;
+    left: 0px;
+    margin-top: 0px;
+    transform: translateY(-3px);
+    font-weight: 500;
+    font-size: 15px;
+    filter: brightness(1.8);
+    transition: all 0.2s ease-in-out;
+    color: v-bind("lyricActiveColor");
+
+}
+
+.song-title-wrapper {
+    display: inline-block;
+    max-width: 100%;
+    position: relative;
+    overflow: hidden;
+    font-size: 28px;
+    line-height: 1.2;
+    height: 34px;
+    -webkit-mask-image: linear-gradient(90deg,
+            transparent 0%,
+            black 15%,
+            black 85%,
+            transparent 100%);
+    mask-image: linear-gradient(90deg,
+            transparent 0%,
+            black 15%,
+            black 85%,
+            transparent 100%);
+    animation: scrollText 20s linear infinite paused;
+}
+
+.song-title {
+    display: inline-block;
+    white-space: nowrap;
+    animation: scrollText 20s linear infinite paused;
+    padding: 0 30px;
+    font-size: inherit;
+}
+
+.song-title-wrapper .song-title {
+    animation-play-state: running;
+}
+
+/* 更平滑的动画曲线 */
+@keyframes scrollText {
+
+    0%,
+    20% {
+        transform: translateX(0);
+        animation-timing-function: cubic-bezier(0.33, 0, 0.67, 1);
+    }
+
+    80%,
+    100% {
+        transform: translateX(calc(-100% + 320px));
+        animation-timing-function: cubic-bezier(0.33, 0, 0.67, 1);
+    }
+}
+
+/* 悬停时平滑启动 */
+.song-title-wrapper:hover .song-title {
+    animation-play-state: running;
+    transition: animation-play-state 0.5s ease-out;
+}
+
+.scrolling-text {
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    animation: scrollText 10s linear infinite;
+    max-width: 100%;
+}
+
+@keyframes scrollText {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
 }
 
 .bottom-bar {
@@ -959,6 +1063,7 @@ const formatArtists = (artists: any[] | undefined) => {
     mask-image: linear-gradient(to bottom, transparent 0%, white 5%, white 80%, transparent 90%);
     overflow-y: auto;
     will-change: scroll-position;
+  
     /* 添加性能优化 */
     padding: 0px v-bind("listPadding + 'px'") 500px v-bind("listPadding + 'px'");
 }
@@ -1055,12 +1160,13 @@ const formatArtists = (artists: any[] | undefined) => {
     transition: all v-bind("lyricSpeed + 'ms'") cubic-bezier(.25, .90, .35, 1);
     transform: scale(v-bind("lyricActiveScale / 100"));
     opacity: v-bind("lyricActiveOpacity / 100");
-    filter: blur(0px);
+    filter: blur(0px) brightness(1.5);
 }
 
 .lyric-item.active .text {
     color: v-bind("lyricActiveColor");
-    text-shadow: v-bind("lyricShadow");
+    filter: brightness(3.5);
+
     font-size: v-bind("lyricSize + 'px'");
     filter: blur(0px);
 }

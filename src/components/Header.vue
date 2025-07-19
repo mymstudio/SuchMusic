@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import SvgIcon from './SvgIcon.vue'
+import Play from '../components/views/Settings/Play.vue'
+import AudioFrom from './views/Settings/AudioFrom.vue'
 const showModal = ref(false)
 const showSearch = ref(false)
 const showSearchB = ref(false)
@@ -30,7 +32,7 @@ const menuOptions: MenuOption[] = [
     },
     {
         label: '播放设置',
-        key: 'pinball-1973',
+        key: 'play',
         icon() {
             return h(SvgIcon, {
                 scale: 1.05, path: 'M11.1762,6.48993Q11.0642,6.47393,10.9762,6.32993Q10.8882,6.18593,10.8402,5.80193Q10.7602,5.17793,10.4322,4.88193Q10.1042,4.58593,9.41615,4.45793Q8.69615,4.31393,8.14415,3.87393Q7.59215,3.43393,7.22415,3.04993Q6.87215,2.71393,6.68015,2.80993Q6.48815,2.90593,6.48815,3.16193L6.48815,3.84993L6.48815,5.35393Q6.48815,6.24993,6.48015,7.28993Q6.47215,8.32993,6.47215,9.25793L6.47215,10.8899L6.47215,11.8019Q6.48815,12.1859,6.35215,12.6579Q6.21615,13.1299,5.84015,13.5459Q5.46415,13.9619,4.84015,14.2579Q4.21615,14.5539,3.28815,14.6019Q2.34415,14.6499,1.58415,14.2659Q0.824151,13.8819,0.408151,13.2979Q-0.00784945,12.7139,0.000150919,12.0179Q0.00815129,11.3219,0.600151,10.7139Q1.19215,10.1059,1.88015,9.86593Q2.56815,9.62593,3.20815,9.60193Q3.84815,9.57793,4.35215,9.68993Q4.85615,9.80193,5.09615,9.89793L5.09615,5.36993Q5.09615,3.48193,5.11215,1.11393Q5.11215,0.649931,5.35215,0.353931Q5.59215,0.057931,5.99215,0.00993103Q6.32815,-0.038069,6.54415,0.145931Q6.76015,0.329931,6.98415,0.657931Q7.20815,0.985931,7.53615,1.40193Q7.86415,1.81793,8.42415,2.21793Q8.90415,2.58593,9.26415,2.74593Q9.62415,2.90593,9.93615,3.04193Q10.2481,3.17793,10.5522,3.36993Q10.8562,3.56193,11.2242,3.99393Q11.5922,4.40993,11.6722,4.85793Q11.7522,5.30593,11.6802,5.67393Q11.6082,6.04193,11.4482,6.27393Q11.2881,6.50593,11.1762,6.48993Z', size: 22, style: {
@@ -65,8 +67,8 @@ const menuOptions: MenuOption[] = [
         },
     },
     {
-        label: '其他设置',
-        key: 'V',
+        label: '音源设置',
+        key: 'audiofrom',
         icon() {
             return h(SvgIcon, {
                 scale: 0.82, path: 'M20.4781,3.98924L19.5473,3.98924C19.5473,3.85627,19.4143,3.45734,19.2813,3.19139L19.8132,2.52652C19.9462,2.39354,19.9462,1.99462,19.8132,1.86165L19.1484,1.19677C19.0154,1.0638,18.6165,1.0638,18.4835,1.19677L17.9516,1.86165C17.6856,1.72867,17.2867,1.5957,17.1537,1.46272L17.1537,0.531899C17.1537,0.265949,16.8878,0,16.6218,0L15.558,0C15.2921,0,15.0261,0.265949,15.0261,0.531899L15.0261,1.46272C14.8932,1.46272,14.4942,1.5957,14.2283,1.86165L13.6964,1.19677C13.5634,1.0638,13.1645,1.0638,13.0315,1.19677L12.2337,1.86165C12.1007,2.1276,12.1007,2.39354,12.2337,2.52652L12.8986,3.05842C12.7656,3.32437,12.6326,3.72329,12.6326,3.98924L11.7018,3.98924C11.4358,3.98924,11.1699,4.25519,11.1699,4.52114L11.1699,5.58494C11.1699,5.85089,11.3029,6.11684,11.7018,6.11684L12.6326,6.11684C12.6326,6.24981,12.7656,6.64874,12.8985,6.91468L12.2337,7.44658C12.1007,7.57956,12.1007,7.97848,12.2337,8.11146L12.8985,8.77633C13.0315,8.90931,13.4304,8.90931,13.5634,8.77633L14.0953,8.11146C14.3613,8.24443,14.7602,8.37741,14.8932,8.51038L14.8932,9.44121C14.8932,9.70715,15.1591,9.9731,15.4251,9.9731L16.4889,9.9731C16.7548,9.9731,17.0208,9.70715,17.0208,9.44121L17.0208,8.64336C17.1537,8.64336,17.5527,8.51038,17.8186,8.24443L18.3505,8.90931C18.4835,9.04228,18.8824,9.04228,19.0154,8.90931L19.6803,8.24443C19.8132,8.11146,19.8132,7.71253,19.6803,7.57956L19.0154,7.04766C19.1484,6.78171,19.2813,6.38279,19.2813,6.24981L20.2122,6.24981C20.4781,6.24981,20.7441,5.98386,20.7441,5.71791L20.7441,4.52114C20.877,4.25519,20.7441,3.98924,20.4781,3.98924ZM16.0899,7.18064C14.8932,7.18064,13.9623,6.24981,13.9623,5.05304C13.9623,3.85627,14.8932,2.92544,16.0899,2.92544C17.2867,2.92544,18.2175,3.85627,18.2175,5.05304C18.2175,6.24981,17.2867,7.18064,16.0899,7.18064ZM8.37741,11.1699L2.79247,11.1699C1.19677,11.1699,5.94443e-8,12.3666,5.94443e-8,13.9623L5.94443e-8,18.0846C5.94443e-8,19.6803,1.19677,20.877,2.79247,20.877L6.91468,20.877C8.51038,20.877,9.70715,19.6803,9.70715,18.0846L9.70715,12.6326C9.70715,11.8348,9.04228,11.1699,8.37741,11.1699ZM8.11146,18.0846C8.11146,18.8824,7.57956,19.4143,6.78171,19.4143L2.79247,19.4143C1.99462,19.4143,1.46272,18.8824,1.46272,18.0846L1.46272,14.0953C1.46272,13.2975,1.99462,12.7656,2.79247,12.7656L8.11146,12.7656L8.11146,18.0846ZM18.0846,11.1699L12.4996,11.1699C11.7018,11.1699,11.1699,11.8348,11.1699,12.6326L11.1699,18.2175C11.1699,19.8132,12.3666,21.01,13.9623,21.01L18.0846,21.01C19.6803,21.01,20.877,19.8132,20.877,18.2175L20.877,14.0953C20.877,12.4996,19.6803,11.1699,18.0846,11.1699ZM19.2813,18.0846C19.2813,18.8824,18.7494,19.4143,17.9516,19.4143L13.9623,19.4143C13.1645,19.4143,12.6326,18.8824,12.6326,18.0846L12.6326,12.7656L17.9516,12.7656C18.7494,12.7656,19.2813,13.2975,19.2813,14.0953L19.2813,18.0846ZM6.91468,9.90739e-9L2.79247,9.90739e-9C1.19677,9.90739e-9,0,1.19677,0,2.79247L0,6.91468C0,8.51038,1.19677,9.70715,2.79247,9.70715L8.37741,9.70715C9.17526,9.70715,9.84013,9.04228,9.84013,8.24443L9.84013,2.79247C9.70715,1.32975,8.51038,9.90739e-9,6.91468,9.90739e-9ZM8.11146,8.37741L2.65949,8.37741C1.86165,8.37741,1.32975,7.71253,1.32975,7.04766L1.32975,2.92544C1.32975,2.1276,1.99462,1.5957,2.65949,1.5957L6.78171,1.5957C7.57956,1.5957,8.11146,2.26057,8.11146,2.92544L8.11146,8.37741Z', size: 22, style: {
@@ -104,21 +106,35 @@ const toggleSearch = () => {
 
 }
 
+const currentSettingTab = ref('play') // 新增变量，控制当前显示的设置页
+
+// 菜单选项中新增 key 对应的组件映射
+const settingComponents = {
+    'play': Play,
+    'audiofrom': AudioFrom, // 将菜单 key 映射到对应组件
+}
+
+// 更新 activeKey 同时切换 currentSettingTab
+const handleMenuSelect = (key: string) => {
+    console.log('currentSettingTab:', key)
+    activeKey.value = key
+    currentSettingTab.value = key
+}
 
 
 const themeOverrides = ref({
-  common: {
-    borderRadius: '10px',
-    primaryColor: '#3080FF',
-  },
-  Menu: {
-    itemColorActive: '#3080FF',
-    itemTextColorActive: '#FFFFFF',
-    itemIconColorActive: '#FFFFFF',
-    itemIconColorActiveHover: '#FFFFFF',
-    itemTextColorActiveHover: '#FFFFFF',
-    itemColorActiveHover: 'rgba(48, 128, 255, 0.56)'
-  },
+    common: {
+        borderRadius: '10px',
+        primaryColor: '#3080FF',
+    },
+    Menu: {
+        itemColorActive: '#3080FF',
+        itemTextColorActive: '#FFFFFF',
+        itemIconColorActive: '#FFFFFF',
+        itemIconColorActiveHover: '#FFFFFF',
+        itemTextColorActiveHover: '#FFFFFF',
+        itemColorActiveHover: 'rgba(48, 128, 255, 0.56)'
+    },
 })
 
 const searchQuery = ref('')
@@ -148,7 +164,7 @@ const handleSearch = () => {
 
     <div class="header">
         <div style="  z-index: 9999; margin: 6px 7px; display: flex; gap: 6px;">
-            <n-button :size="showSearchB ? 'large' : 'medium'" circle style="transition: all 0.15s ease; z-index: -1;"
+            <n-button @click="$router.back()" :size="showSearchB ? 'large' : 'medium'" circle style="transition: all 0.15s ease; z-index: -1;"
                 tertiary>
                 <template #icon>
                     <div style="transform: scale(0.9);">
@@ -253,7 +269,7 @@ const handleSearch = () => {
                                 设置</h2>
                             <span
                                 style="transform: translateY(-3px); margin-top: 0px; color: #999999; margin-left: 24px; font-size: 15px; margin-bottom: 2px;">个性化及全局设置</span>
-                            <n-menu v-model:value="activeKey" mode="vertical" :options="menuOptions" responsive style="
+                            <n-menu @update:value="handleMenuSelect" v-model:value="activeKey" mode="vertical" :options="menuOptions" responsive style="
         margin-top: 2px;
         width: 250px;
         margin-left: 5px;
@@ -264,30 +280,8 @@ const handleSearch = () => {
                     </div>
 
                     <div style="width: 80%; padding: 12px 24px; padding-bottom: 0px; ">
-                        <h2
-                            style=" font-family: HarmonyOS_Sans , sans-serif; margin-left: 12px; font-size: 24px; margin-bottom: 10px; ">
-                            播放设置</h2>
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <div class="settings-item-description">
-                                <img src="../assets/Sonus Audio.svg" alt="" height="48px">
-                                <span
-                                    style="transform: translateX(4px); font-family: HarmonyOS_Sans_SC_Bold, sans-serif; font-size: 20px; font-weight: 700;">Sonus
-                                    Audio</span>
-                                <span
-                                    style="text-align: center; width: 85%; transform: translateY(-9px) translateX(2px); font-family: HarmonyOS_Sans_SC; color: #999999; font-size: 14px; font-weight: 500;">
-                                    Sonus Audio 是一款基于 AudioContext 的音频控制系统，<br>它拥有独特的体验，并支持多种音频格式
-                                </span>
-                            </div>
 
-                            <div class="settings-item">
-                                <div style="display: flex; flex-direction: column;">
-                                    <span
-                                        style="font-family: HarmonyOS_Sans_SC_Bold, sans-serif; font-size: 16px; font-weight: 700;">Sonus Debug 模式</span>
-                                    <span style=" color: #999999; font-size: 13px;">开启后，Sonus Audio 会在控制台输出调试信息</span>
-                                </div>
-                                <n-switch v-model:value="active" />
-                            </div>
-                        </div>
+                        <component :is="settingComponents[currentSettingTab]" />
 
                     </div>
 
@@ -329,7 +323,7 @@ const handleSearch = () => {
 .header {
     position: relative;
     top: 25%;
-
+    z-index: 9999;
     height: 100%;
     width: 100%;
     font-family: HarmonyOS_Sans_SC, sans-serif;
@@ -338,27 +332,6 @@ const handleSearch = () => {
     align-items: center;
 }
 
-.settings-item-description {
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    padding: 30px 20px;
-    padding-bottom: 9px;
-    gap: 8px;
-    border-radius: 9px;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.settings-item {
-    background-color: white;
-    display: flex;
-    flex-direction: row;
-    padding: 10px 20px;
-    border-radius: 9px;
-    justify-content: space-between;
-    align-items: center;
-}
 
 .search-container {
     position: relative;

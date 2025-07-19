@@ -3,39 +3,161 @@ import { defineProps, defineEmits, ref, watch } from 'vue';
 import { usePlayerStore } from '../../../stores/player';
 import Lyrics from './Lyrics.vue';
 import { useUIStore } from '../../../stores/ui';
-const playerStore = usePlayerStore();
-const uiStore = useUIStore();
+import { onBeforeUnmount } from 'vue';
 
+const playerStore = usePlayerStore();
+const backgroundimg = ref(playerStore.currentSong?.picUrl || '');
+const dominantColor = ref('#ffffff'); // 默认白色
+const adjustedColor = ref('#ffffff'); // 调整后的颜色
+const themeColor = '#1DB954'; // 假设的主题色(Spotify绿)
+
+// 创建一个隐藏的 canvas 用于取色
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+
+// 提取并调整主色（使用前端 Canvas 方式）
+
+// 提取并调整主色（使用前端 Canvas 方式）
+const extractAndAdjustColor = (imgUrl: string) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous'; // 支持跨域图片
+    img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx?.drawImage(img, 0, 0);
+        const imageData = ctx?.getImageData(0, 0, canvas.width, canvas.height);
+        const pixelData = imageData?.data;
+
+        if (!pixelData) {
+            console.error('无法获取图像像素数据');
+            return;
+        }
+
+        // 简单平均取色法（可替换为更复杂的算法）
+        let rSum = 0, gSum = 0, bSum = 0, count = 0;
+        for (let i = 0; i < pixelData.length; i += 4) {
+            rSum += pixelData[i];
+            gSum += pixelData[i + 1];
+            bSum += pixelData[i + 2];
+            count++;
+        }
+        const avgR = Math.round(rSum / count);
+        const avgG = Math.round(gSum / count);
+        const avgB = Math.round(bSum / count);
+
+        const color = rgbToHex(avgR, avgG, avgB);
+        dominantColor.value = color;
+
+        // 改为调亮处理
+
+        adjustedColor.value = increaseBrightness(color, 0.8); // 固定调亮系数为 0.5
+        console.log('dominantColor', dominantColor.value);
+        console.log('adjustedColor', adjustedColor.value);
+    };
+    img.src = imgUrl;
+};
+
+// 新增：颜色调亮函数（仅增加亮度）
+function increaseBrightness(color: string, factor: number): string {
+    const [r, g, b] = hexToRgb(color);
+    return rgbToHex(
+        Math.min(255, r + (255 - r) * factor),
+        Math.min(255, g + (255 - g) * factor),
+        Math.min(255, b + (255 - b) * factor)
+    );
+}
+
+// 删除原来的 lightenColor 函数
+
+// 辅助函数: hex转rgb
+function hexToRgb(hex: string): [number, number, number] {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return [r, g, b];
+}
+
+// 辅助函数: rgb转hex
+function rgbToHex(r: number, g: number, b: number): string {
+    return `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`;
+}
+const uiStore = useUIStore();
 
 // 接收 props
 const props = defineProps<{
-  backgroundopen: boolean;
-}>();
+    backgroundopen: boolean;
+}>(); Deleted: ;
 
 // 定义 emit
 const emit = defineEmits<{
-  (e: 'update:backgroundopen', value: boolean): void;
-}>();
+    (e: 'update:backgroundopen', value: boolean): void;
+}>(); Deleted: ;
 
 // 当前封面图 URL
-const backgroundimg = ref(playerStore.currentSong?.picUrl || '');
 
 // 监听 currentSong 变化，自动更新图片地址
-watch(
-  () => playerStore.currentSong,
-  (newSong) => {
+watch(() => playerStore.currentSong, (newSong) => {
     if (newSong && newSong.picUrl) {
-      backgroundimg.value = newSong.picUrl;
+        backgroundimg.value = newSong.picUrl;
     }
-  }
-);
+}); Deleted: ;
+
+// 流体动画状态
+const fluidAnimation = ref({
+    rotate: 0,
+    skewX: 0,
+    skewY: 0,
+    scale: 1
+}); Deleted: ;
+
+let animationId: number | null = null; Deleted: ;
+
+// 流体动画循环
+const startFluidAnimation = () => {
+    if (animationId) cancelAnimationFrame(animationId);
+
+    let lastTime = performance.now();
+    const duration = 15000; // 缩短周期为15秒
+
+    const animate = (time: number) => {
+        const elapsed = time - lastTime;
+        const progress = (elapsed % duration) / duration;
+
+        // 增强旋转幅度和扭曲效果
+        fluidAnimation.value = {
+            rotate: Math.sin(progress * Math.PI * 2) * 8, // 增大到-8到8度的旋转
+            skewX: Math.sin(progress * Math.PI * 3) * 10, // 增大到-10到10度的X轴扭曲
+            skewY: Math.cos(progress * Math.PI * 1.5) * 6, // 增大到-6到6度的Y轴扭曲
+            scale: 1 + Math.sin(progress * Math.PI * 4) * 0.05 // 轻微放大波动范围
+        };
+
+        animationId = requestAnimationFrame(animate);
+    };
+
+    animationId = requestAnimationFrame(animate);
+}; Deleted: ;
 
 function BackgroundOpen() {
-  emit('update:backgroundopen', !props.backgroundopen);
-  uiStore.togglePanel();
-}
-</script>
+    emit('update:backgroundopen', !props.backgroundopen);
+    uiStore.togglePanel();
+} Deleted: ;
 
+watch(() => backgroundimg.value, (newVal) => {
+    if (newVal) {
+        extractAndAdjustColor(newVal);
+        startFluidAnimation();
+    } else if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+}, { immediate: true }); Deleted: ;
+
+onBeforeUnmount(() => {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+    }
+}); Deleted: ;
+</script>
 <template>
 
     <div class="background">
@@ -55,7 +177,8 @@ function BackgroundOpen() {
                     </svg>
                 </div>
                 <div @click="BackgroundOpen()" class="flex-center-center bottom-right-button-text">
-                    <svg style="transform: scale(0.9);" xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
+                    <svg style="transform: scale(0.9);" xmlns='http://www.w3.org/2000/svg' width='24' height='24'
+                        viewBox='0 0 24 24'>
                         <title>歌词模式</title>
                         <g id="message_4_fill" fill='none' fill-rule='evenodd'>
                             <path
@@ -64,16 +187,24 @@ function BackgroundOpen() {
                                 d='M19 3a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7.333L4 21.5c-.824.618-2 .03-2-1V6a3 3 0 0 1 3-3zm-8 9H8a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2m5-4H8a1 1 0 0 0-.117 1.993L8 10h8a1 1 0 0 0 .117-1.993z' />
                         </g>
                     </svg>
-                    <span style="transform: translateY(-0.5px);" class="bottom-right-text">正常歌词模式（Debug）</span>
+                    <span style="transform: translateY(-0.5px);" class="bottom-right-text">演示模式</span>
                 </div>
             </div>
 
             <div class="background-container">
-                <Lyrics />
+                <Lyrics :lyric-active-color="dominantColor"  />
             </div>
 
         </div>
-        <img loading="lazy" decoding="async" class="background-img" :src="backgroundimg" alt="">
+        <img loading="lazy" decoding="async" class="background-img" :src="backgroundimg" alt="" :style="{
+            transform: `
+                 scale(${1 + fluidAnimation.scale * 0.45}) 
+                 rotate(${fluidAnimation.rotate * 3.5}deg)
+                
+               `,
+            opacity: backgroundopen ? 1 : 0,
+            display: backgroundopen ? 'block' : 'none'
+        }">
     </div>
 
 
@@ -112,9 +243,12 @@ function BackgroundOpen() {
     width: 100%;
     height: 100%;
     padding: 16px;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.603);
     z-index: 1;
-    backdrop-filter: blur(70px);
+    backdrop-filter: blur(60px);
+    transition: transform 12s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+    transform-origin: center center;
 }
 
 .flex-center-center {
@@ -169,5 +303,8 @@ function BackgroundOpen() {
     height: 100%;
     border-radius: 8px 8px 0 0;
     object-fit: cover;
+    transition: transform 8s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+    transform-origin: center center;
 }
 </style>

@@ -8,7 +8,7 @@
             <n-tab-pane name="chap1" tab="新碟上架">
                 <div class="top-albums">
                     <div class="album" v-for="(item, index) in topAlbums" :key="index">
-                        <div class="album-item" v-if="item.type === '专辑'">
+                        <div @click="getAlbumsFormatted(item.id)" class="album-item">
                             <div class="album-cover">
                                 <img :src="item.picUrl" alt="" />
                             </div>
@@ -80,7 +80,8 @@
 import { ref, onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 import { useSearchStore } from '../../stores/search';
-
+import { useRouter } from 'vue-router';
+const router = useRouter();
 const searchStore = useSearchStore();
 const musicFiles = ref([]);
 const musicMetadata = ref([]); // 新增：用于保存所有文件的元数据
@@ -88,6 +89,10 @@ const songCount = ref(0);
 
 // 修复：使用 store 中的 topAlbums 替代本地未定义的 topAlbums
 const topAlbums = ref(searchStore.topAlbums);
+
+function getAlbumsFormatted(albumsid: any) {
+   router.push({ name: 'Album', params: { id: albumsid } });
+}
 
 function getArtistsFormatted(artistsdata: any[]) {
     if (!artistsdata) return '';
@@ -98,7 +103,8 @@ function getArtistsFormatted(artistsdata: any[]) {
 // 组件挂载时自动搜索热门专辑
 onMounted(async () => {
     if (searchStore.topAlbums.length === 0) {
-        await searchStore.fetchTopAlbums(''); // 可传入关键词如 'new album'
+        await searchStore.fetchTopAlbumsA(''); // 可传入关键词如 'new album'
+        topAlbums.value = searchStore.topAlbums;
     }
 });
 
@@ -137,12 +143,17 @@ const scanMusic = async () => {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
     padding: 14px;
+    padding-top: 0px;
     padding-left: 0;
     padding-bottom: 0px;
     gap: 12px;
     overflow-y: auto;
     height: calc(100vh - 210px);
     width: calc(100vw - 306px);
+}
+
+.album {
+
 }
 
 /* 滚动条整体样式 */
@@ -298,7 +309,7 @@ const scanMusic = async () => {
 .album-cover {
     width: 170px;
     height: 170px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    box-shadow:  0px 0px 14px rgba(0, 0, 0, 0.123);;
     border-radius: 10px;
     overflow: hidden;
 

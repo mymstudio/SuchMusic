@@ -7,7 +7,9 @@
         <audio ref="hiddenAudio" :src="currentSongUrl" @ended="onAudioEnded" style="display: none;"
             preload="auto"></audio>
 
-        <n-slider style="position: absolute; top:-8px; left: 0; width: 100vw; height: 6px;" v-model:value="progress"
+        <n-slider :style="{
+            opacity: audioStore.isPlaying? 1 : 0,
+        }" style="position: absolute; top:-8px; left: 0; transition: all 0.2s ease; width: 100vw; height: 6px;" v-model:value="progress"
             :step="1" @update:value="onProgressChange">
             <template #thumb>
                 <div class="thumb"></div>
@@ -88,10 +90,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            
             border-radius: 100000px;
-            background-color: var(--thumb-color);
-            " @click="togglePlay">
+            
+            " :style="{
+                backgroundColor: pause ? 'var(--thumb-color)' : 'transparent',
+                color: pause ? 'white' : 'black',
+                transform: pause ? 'scale(1)' : 'scale(1.25)',
+            }" @click="togglePlay">
                 <svg v-if="!pause" style="transform: scale(0.82) translateX(1px);" xmlns="http://www.w3.org/2000/svg"
                     width="24" height="24">
                     <rect width="24" height="24" opacity="0"></rect>
@@ -517,6 +522,6 @@ watch(
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-top: 1px solid #555;
+    border-top: 1px solid #c9c9c9;
 }
 </style>

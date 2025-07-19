@@ -57,7 +57,7 @@ function closeWindow() {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 0;
+  z-index: 99;
   padding: 6px 12px;
 }
 

@@ -64,41 +64,42 @@ function toggleDarkMode() {
 
   <n-config-provider :theme="isDarkMode ? darkTheme : undefined" :theme-overrides="themeOverrides">
     <n-message-provider placement="top-right">
+      <n-notification-provider>
+        <div :class="{ 'scaled-down': uiStore.isPanelOpen }" class="app">
+          <Silder />
 
-      <div :class="{ 'scaled-down': uiStore.isPanelOpen }" class="app">
-        <Silder />
 
-
-        <main class="container">
-          <div data-tauri-drag-region class="tuodong">
-            <Header data-tauri-drag-region />
-            <div class="titlebar-container">
-              <Titlebar />
+          <main class="container">
+            <div data-tauri-drag-region class="tuodong">
+              <Header data-tauri-drag-region />
+              <div class="titlebar-container">
+                <Titlebar />
+              </div>
             </div>
-          </div>
 
 
 
 
-          <div class="content">
+            <div class="content">
 
-            <router-view class="main-content" v-slot="{ Component }">
-              <transition name="fade">
-                <component :is="Component" />
-              </transition>
-            </router-view>
+              <router-view class="main-content" v-slot="{ Component }">
+                <transition name="fade">
+                  <component :is="Component" />
+                </transition>
+              </router-view>
 
-          </div>
+            </div>
 
 
-        </main>
-      </div>
-      <Bottom class="bottom-bar" />
+          </main>
+        </div>
+        <Bottom class="bottom-bar" />
 
-      <!-- 遮罩层 -->
-      <Transition name="fadeA">
-        <div v-show="uiStore.isPanelOpen" class="overlay" @click="uiStore.closePanel"></div>
-      </Transition>
+        <!-- 遮罩层 -->
+        <Transition name="fadeA">
+          <div v-show="uiStore.isPanelOpen" class="overlay" @click="uiStore.closePanel"></div>
+        </Transition>
+      </n-notification-provider>
     </n-message-provider>
   </n-config-provider>
 </template>

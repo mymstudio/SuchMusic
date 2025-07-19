@@ -1,5 +1,6 @@
 // src/stores/player.ts
 import { defineStore } from 'pinia';
+import { useRecentlyPlayedStore } from './recentlyPlayed';
 
 export interface Song {
   id: number;
@@ -19,6 +20,8 @@ export const usePlayerStore = defineStore('player', {
   actions: {
     playSong(song: Song) {
       this.currentSong = song;
+      const recentlyPlayed = useRecentlyPlayedStore();
+      recentlyPlayed.addSong(song);
     },
     stop() {
       this.currentSong = null;
